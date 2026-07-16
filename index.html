@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://*.supabase.co https://accounts.google.com; frame-src https://accounts.google.com;">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="index, follow">
 <title>Thậtt Cẩm-Shop — Hàng Thật, Giá Trị Thật</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
 <style>
   :root{
     --green-deep:#0D3B29;
@@ -64,6 +67,8 @@
     padding:0 2px;line-height:1;
   }
   .logout-btn:hover{color:#fff;}
+  .admin-chip{background:var(--gold);border-color:var(--green-deep);color:var(--green-deep);}
+  .admin-chip .logout-btn{color:var(--green-deep);}
   .nav-cta{background:var(--gold);color:var(--green-deep);padding:10px 20px;border-radius:999px;font-weight:800;font-size:14px;white-space:nowrap;}
 
   .theme-toggle{
@@ -257,7 +262,8 @@
     <h2>Sản phẩm chất lượng cao</h2>
     <p>Đa dạng ngành hàng, được chọn lọc kỹ càng về chất lượng và nguồn gốc.</p>
   </div>
-  <div class="prod-grid">
+  <button id="editModeBtn" style="display:none;margin-bottom:20px;background:var(--gold);color:var(--green-deep);border:none;padding:10px 20px;border-radius:999px;font-weight:800;cursor:pointer;">✏️ Bật chế độ chỉnh sửa</button>
+  <div class="prod-grid" id="prodGrid">
     <div class="prod-card">
       <div class="prod-thumb">🎧</div>
       <div class="prod-info"><span class="prod-tag">Công nghệ</span><h4>Tai nghe không dây cao cấp</h4>
@@ -283,7 +289,7 @@
 
 <div class="footer-strip">
   <div class="flogo">THẬTT CẨM-SHOP</div>
-  <p>Hàng thật – Giá trị thật · Uy tín tạo niềm tin · © 2026</p>
+  <p>Hàng thật – Giá trị thật · Uy tín tạo niềm tin · © 2026 Thậtt Cẩm-Shop. Mọi nội dung, hình ảnh, mã nguồn thuộc bản quyền Thậtt Cẩm-Shop, nghiêm cấm sao chép dưới mọi hình thức khi chưa được cho phép.</p>
 </div>
 
 <script>
@@ -299,7 +305,8 @@
         date.setTime(date.getTime() + (days*24*60*60*1000));
         expires = '; expires=' + date.toUTCString();
       }
-      document.cookie = name + '=' + value + expires + '; path=/; SameSite=Lax';
+      var secureFlag = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = name + '=' + value + expires + '; path=/; SameSite=Lax' + secureFlag;
     }
 
     var root = document.documentElement;
@@ -317,13 +324,18 @@
     // Thay 2 giá trị dưới đây bằng URL và Anon Key của project Supabase của bạn
     var SUPABASE_URL = 'https://qszgzicilwreluzsnpqq.supabase.co';
     var SUPABASE_ANON_KEY = 'sb_publishable_jKPaH0i_Z-cHXgYep2hHuA_buZAmh7t';
+    var ADMIN_EMAIL = 'voduynam11231@gmail.com';
     var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function showUser(name, email, picture){
       document.getElementById('googleSignInBtn').style.display = 'none';
       var chip = document.getElementById('userChip');
       chip.style.display = 'flex';
-      document.getElementById('userName').textContent = name || email;
+      var isAdmin = email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      window.__isAdmin = isAdmin;
+      document.getElementById('userName').textContent = (name || email) + (isAdmin ? ' · Admin' : '');
+      chip.classList.toggle('admin-chip', !!isAdmin);
+      document.getElementById('editModeBtn').style.display = isAdmin ? 'inline-block' : 'none';
       var avatar = document.getElementById('userAvatar');
       if(picture){ avatar.src = picture; avatar.style.display = 'inline-block'; }
     }
@@ -331,6 +343,10 @@
     function hideUser(){
       document.getElementById('userChip').style.display = 'none';
       document.getElementById('googleSignInBtn').style.display = 'flex';
+      window.__isAdmin = false;
+      document.getElementById('editModeBtn').style.display = 'none';
+      document.getElementById('editModeBtn').textContent = '✏️ Bật chế độ chỉnh sửa';
+      if(editMode){ editMode = false; loadProducts(); }
     }
 
     async function applySessionUser(session){
@@ -361,6 +377,76 @@
     supabaseClient.auth.getSession().then(function(res){
       applySessionUser(res.data.session);
     });
+
+    // ---- Sản phẩm: tải từ Supabase (nếu có bảng 'products'), chỉnh sửa chỉ dành cho Admin ----
+    var FALLBACK_PRODUCTS = [
+      {id:1, emoji:'🎧', tag:'Công nghệ', name:'Tai nghe không dây cao cấp', price:'459.000₫'},
+      {id:2, emoji:'👜', tag:'Thời trang', name:'Túi da thật thủ công', price:'890.000₫'},
+      {id:3, emoji:'💅', tag:'Làm đẹp', name:'Bộ dưỡng da chính hãng', price:'329.000₫'},
+      {id:4, emoji:'⌚', tag:'Phụ kiện', name:'Đồng hồ cơ nam', price:'1.250.000₫'}
+    ];
+    var editMode = false;
+
+    function escapeHtml(str){
+      var d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function renderProducts(list){
+      var grid = document.getElementById('prodGrid');
+      grid.innerHTML = list.map(function(p){
+        return '<div class="prod-card" data-id="'+p.id+'">' +
+          '<div class="prod-thumb">'+p.emoji+'</div>' +
+          '<div class="prod-info"><span class="prod-tag">'+escapeHtml(p.tag)+'</span>' +
+          '<h4 class="editable-name" '+(editMode?'contenteditable="true"':'')+'>'+escapeHtml(p.name)+'</h4>' +
+          '<div class="prod-price"><span class="price editable-price" '+(editMode?'contenteditable="true"':'')+'>'+escapeHtml(p.price)+'</span>' +
+          (editMode ? '<button class="add-btn save-btn" title="Lưu">💾</button>' : '<button class="add-btn">+</button>') +
+          '</div></div></div>';
+      }).join('');
+      if(editMode){
+        grid.querySelectorAll('.save-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var card = btn.closest('.prod-card');
+            var id = card.getAttribute('data-id');
+            var newName = card.querySelector('.editable-name').textContent.trim();
+            var newPrice = card.querySelector('.editable-price').textContent.trim();
+            saveProduct(id, newName, newPrice);
+          });
+        });
+      }
+    }
+
+    async function loadProducts(){
+      try{
+        var res = await supabaseClient.from('products').select('*').order('id');
+        if(res.error || !res.data || res.data.length === 0){
+          renderProducts(FALLBACK_PRODUCTS);
+        } else {
+          renderProducts(res.data);
+        }
+      }catch(e){
+        renderProducts(FALLBACK_PRODUCTS);
+      }
+    }
+
+    async function saveProduct(id, name, price){
+      var res = await supabaseClient.from('products').update({ name: name, price: price }).eq('id', id);
+      if(res.error){
+        alert('Không lưu được (kiểm tra bạn đã đăng nhập đúng email Admin và đã tạo bảng products + RLS chưa). Chi tiết: ' + res.error.message);
+      } else {
+        alert('Đã lưu thay đổi!');
+      }
+    }
+
+    document.getElementById('editModeBtn').addEventListener('click', function(){
+      if(!window.__isAdmin) return;
+      editMode = !editMode;
+      this.textContent = editMode ? '✅ Đang chỉnh sửa (bấm để thoát)' : '✏️ Bật chế độ chỉnh sửa';
+      loadProducts();
+    });
+
+    loadProducts();
   })();
 </script>
 
