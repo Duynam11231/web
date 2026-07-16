@@ -1,1 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://*.supabase.co https://accounts.google.com; frame-src https://accounts.google.com;">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="index, follow">
+<title>Thậtt Cẩm-Shop — Hàng Thật, Giá Trị Thật</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --green-deep:#0D3B29;
+    --green:#155940;
+    --gold:#D4AF37;
+    --gold-light:#F0D876;
+    --cream:#FBF6EA;
+    --ink:#122019;
+    --orange:#D97706;
+    --radius:18px;
+    --page-bg:var(--cream);
+    --page-text:var(--ink);
+    --card-bg:#ffffff;
+    --muted:#4a5c52;
+    --muted-2:#5c6b62;
+  }
+  html.dark{
+    --page-bg:#0A1F17;
+    --page-text:#EAF3EC;
+    --card-bg:#12291F;
+    --cream:#12291F;
+    --muted:#B7C9BE;
+    --muted-2:#9FB3A6;
+    --ink:#EAF3EC;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Be Vietnam Pro', sans-serif; background:var(--page-bg); color:var(--page-text); transition:background .25s ease,color .25s ease;}
+  h1,h2,h3,.display{font-family:'Baloo 2', sans-serif;}
+  a{text-decoration:none;color:inherit;}
 
+  /* NAV */
+  header{position:sticky;top:0;z-index:100;background:var(--green-deep);border-bottom:3px solid var(--gold);}
+  .nav{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .logo{display:flex;align-items:center;gap:10px;color:var(--cream);font-weight:800;font-size:22px;}
+  html.dark .logo{color:#EAF3EC;}
+  .nav-links{display:flex;gap:26px;font-weight:600;font-size:14px;color:var(--cream);}
+  html.dark .nav-links{color:#EAF3EC;}
+  .nav-links a:hover{color:var(--gold-light);}
+  .nav-right{display:flex;align-items:center;gap:14px;}
+  #authArea{display:flex;align-items:center;}
+  .google-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;color:#1f1f1f;
+    border:1px solid #d0d0d0;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;
+    cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;
+  }
+  .google-btn:hover{background:#f5f5f5;}
+  .user-chip{
+    display:flex;align-items:center;gap:8px;background:var(--green);border:2px solid var(--gold);
+    padding:5px 10px 5px 6px;border-radius:999px;color:var(--cream);font-weight:600;font-size:13px;
+  }
+  .user-chip img{width:26px;height:26px;border-radius:50%;}
+  .logout-btn{
+    background:none;border:none;color:var(--gold-light);font-weight:800;cursor:pointer;font-size:13px;
+    padding:0 2px;line-height:1;
+  }
+  .logout-btn:hover{color:#fff;}
+  .admin-chip{background:var(--gold);border-color:var(--green-deep);color:var(--green-deep);}
+  .admin-chip .logout-btn{color:var(--green-deep);}
+  .nav-cta{background:var(--gold);color:var(--green-deep);padding:10px 20px;border-radius:999px;font-weight:800;font-size:14px;white-space:nowrap;}
+
+  .theme-toggle{
+    width:52px;height:30px;border-radius:999px;background:var(--green);border:2px solid var(--gold);
+    position:relative;cursor:pointer;flex-shrink:0;
+  }
+  .theme-toggle .knob{
+    position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--gold-light);
+    display:flex;align-items:center;justify-content:center;font-size:12px;transition:left .2s ease;
+  }
+  html.dark .theme-toggle .knob{left:26px;}
+
+  /* HERO */
+  .hero{
+    background:radial-gradient(circle at 20% 20%, #1c6b4c, var(--green-deep) 60%);
+    padding:64px 24px 56px;position:relative;overflow:hidden;
+  }
+  .hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;position:relative;z-index:2;}
+  .ribbon{
+    display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--green-deep);
+    padding:6px 16px;border-radius:999px;font-weight:800;font-size:13px;margin-bottom:18px;
+  }
+  .hero h1{color:var(--cream);font-size:50px;line-height:1.1;font-weight:800;margin-bottom:16px;}
+  html.dark .hero h1{color:#EAF3EC;}
+  .hero h1 .gold-text{color:var(--gold-light);}
+  .hero p{color:#cfe4d8;font-size:17px;line-height:1.6;max-width:460px;margin-bottom:28px;}
+  .stars{color:var(--gold-light);letter-spacing:4px;font-size:18px;margin-bottom:10px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-gold{background:var(--gold);color:var(--green-deep);padding:15px 28px;border-radius:999px;font-weight:800;font-size:15px;border:2px solid var(--gold-light);}
+  .btn-gold:hover{background:var(--gold-light);}
+  .btn-outline{background:transparent;color:var(--cream);padding:15px 28px;border-radius:999px;font-weight:700;font-size:15px;border:2px solid var(--cream);}
+  html.dark .btn-outline{color:#EAF3EC;border-color:#EAF3EC;}
+  .btn-outline:hover{background:var(--cream);color:var(--green-deep);}
+  html.dark .btn-outline:hover{background:#EAF3EC;color:var(--green-deep);}
+
+  .hero-seal{
+    position:relative;display:flex;align-items:center;justify-content:center;
+  }
+
+  /* STRIP */
+  .strip{background:var(--green);border-top:2px solid var(--gold);border-bottom:2px solid var(--gold);padding:14px 0;}
+  .strip-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;color:var(--cream);font-weight:700;font-size:14px;}
+  html.dark .strip-inner{color:#EAF3EC;}
+  .strip-inner span{display:flex;align-items:center;gap:8px;}
+
+  section{max-width:1200px;margin:0 auto;padding:76px 24px;}
+  .section-head{max-width:620px;margin-bottom:40px;}
+  .section-head .ribbon-alt{background:var(--green);color:var(--gold-light);}
+  .section-head h2{font-size:36px;font-weight:800;color:var(--green-deep);margin-bottom:10px;}
+  html.dark .section-head h2{color:var(--gold-light);}
+  .section-head p{color:var(--muted);font-size:16px;line-height:1.6;}
+
+  /* COMMITMENTS */
+  .commit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .commit-card{
+    background:var(--green-deep);border:2px solid var(--gold);border-radius:var(--radius);
+    padding:26px 20px;text-align:center;color:var(--cream);
+  }
+  html.dark .commit-card{color:#EAF3EC;}
+  .commit-card .ic{width:56px;height:56px;border-radius:50%;background:var(--green);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;}
+  .commit-card h3{font-size:16px;font-weight:800;margin-bottom:6px;}
+  .commit-card p{font-size:13px;color:#cfe4d8;}
+
+  /* WARRANTY */
+  .warranty-box{
+    background:var(--card-bg);border:2px solid var(--gold);border-radius:24px;padding:36px;
+  }
+  .warranty-title{text-align:center;background:var(--green-deep);color:var(--gold-light);display:inline-block;padding:8px 24px;border-radius:999px;font-weight:800;margin:-58px auto 30px;position:relative;left:50%;transform:translateX(-50%);}
+  .warranty-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;}
+  .warranty-item .badge{width:64px;height:64px;border-radius:50%;background:var(--green);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin:0 auto 10px;border:2px solid var(--gold);}
+  .warranty-item h4{font-weight:800;font-size:15px;color:var(--green-deep);margin-bottom:4px;}
+  html.dark .warranty-item h4{color:var(--gold-light);}
+  .warranty-item p{font-size:12.5px;color:var(--muted-2);}
+  .warranty-note{margin-top:22px;font-size:12px;color:#8a7a4a;text-align:center;font-style:italic;}
+  html.dark .warranty-note{color:#c9b06b;}
+
+  /* PRODUCTS */
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .prod-card{border:2px solid var(--gold);border-radius:var(--radius);overflow:hidden;background:var(--card-bg);transition:transform .18s ease;}
+  .prod-card:hover{transform:translateY(-6px);}
+  .prod-thumb{height:150px;display:flex;align-items:center;justify-content:center;font-size:46px;background:var(--green-deep);color:var(--gold-light);border-bottom:2px solid var(--gold);}
+  .prod-info{padding:16px;}
+  .prod-tag{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;color:var(--orange);margin-bottom:6px;}
+  .prod-info h4{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--green-deep);}
+  html.dark .prod-info h4{color:var(--gold-light);}
+  .prod-price{display:flex;align-items:center;justify-content:space-between;}
+  .price{font-weight:800;font-size:16px;color:var(--green-deep);}
+  html.dark .price{color:var(--gold-light);}
+  .add-btn{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--green-deep);border:none;font-size:18px;font-weight:800;cursor:pointer;}
+  .add-btn:hover{background:var(--gold-light);}
+
+  /* FOOTER STRIP */
+  .footer-strip{background:var(--green-deep);color:var(--cream);padding:36px 24px;text-align:center;border-top:3px solid var(--gold);}
+  html.dark .footer-strip{color:#EAF3EC;}
+  .footer-strip .flogo{font-family:'Baloo 2';font-weight:800;font-size:20px;color:var(--gold-light);margin-bottom:6px;}
+  .footer-strip p{font-size:13px;color:#cfe4d8;}
+
+  @media (max-width:900px){
+    .hero-inner{grid-template-columns:1fr;}
+    .commit-grid,.warranty-grid,.prod-grid{grid-template-columns:repeat(2,1fr);}
+    .hero h1{font-size:34px;}
+    .nav-links{display:none;}
+    .strip-inner{justify-content:center;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo"><img src="https://i.postimg.cc/CLNrJBbt/Thiet-ke-chua-co-ten.png" alt="Thậtt Cẩm-Shop" style="width:38px;height:38px;border-radius:50%;">Thậtt Cẩm-Shop</div>
+    <nav class="nav-links">
+      <a href="#cam-ket">Cam kết</a>
+      <a href="#bao-hanh">Bảo hành</a>
+      <a href="#san-pham">Sản phẩm</a>
+    </nav>
+    <div class="nav-right">
+      <div class="theme-toggle" id="themeToggle" role="button" aria-label="Chuyển chế độ sáng/tối"><div class="knob">🌙</div></div>
+      <div id="authArea">
+        <button id="googleSignInBtn" class="google-btn">
+          <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 12 24 12c3.1 0 5.9 1.1 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4c-7.5 0-14 4.1-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.5l-6.5-5.4C29.4 34.8 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.9 39.8 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.5 5.4C40.9 36.4 44 30.9 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+          Đăng nhập với Google
+        </button>
+        <div id="userChip" class="user-chip" style="display:none;">
+          <img id="userAvatar" src="" alt="" style="display:none;">
+          <span id="userName"></span>
+          <button id="logoutBtn" class="logout-btn" title="Đăng xuất">✕</button>
+        </div>
+      </div>
+      <a href="#san-pham" class="nav-cta">Mua ngay</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="ribbon">✔ CAM KẾT UY TÍN</div>
+      <h1>Hàng thật<br><span class="gold-text">Giá trị thật</span></h1>
+      <div class="stars">★★★★★</div>
+      <p>Chuyên cung cấp các dòng sản phẩm chất lượng cao, nguồn gốc rõ ràng. Chúng tôi đặt sự uy tín và trải nghiệm mua sắm an tâm của khách hàng lên hàng đầu.</p>
+      <div class="hero-actions">
+        <a href="#san-pham" class="btn-gold">Khám phá sản phẩm</a>
+        <a href="#cam-ket" class="btn-outline">Xem cam kết</a>
+      </div>
+    </div>
+    <div class="hero-seal">
+      <img src="https://i.postimg.cc/yxrgYywP/Chat-GPT-Image-12-30-08-8-thg-7-2026.png" alt="Thậtt Cẩm-Shop - Hàng thật giá trị thật" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">
+    </div>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="strip-inner">
+    <span>🚚 Giao hàng nhanh chóng, đóng gói cẩn thận</span>
+    <span>↩️ Thủ tục đơn giản</span>
+    <span>🎧 Hỗ trợ tận tình 24/7</span>
+  </div>
+</div>
+
+<section id="cam-ket">
+  <div class="section-head">
+    <div class="ribbon ribbon-alt">CAM KẾT</div>
+    <h2>Uy tín tạo niềm tin, chất lượng tạo giá trị</h2>
+    <p>Mỗi sản phẩm tại Thậtt Cẩm-Shop đều đi cùng cam kết rõ ràng — để bạn mua sắm hoàn toàn an tâm.</p>
+  </div>
+  <div class="commit-grid">
+    <div class="commit-card"><div class="ic">✓</div><h3>Hàng thật</h3><p>100% chính hãng</p></div>
+    <div class="commit-card"><div class="ic">🏅</div><h3>Nguồn gốc rõ ràng</h3><p>Minh bạch, đáng tin cậy</p></div>
+    <div class="commit-card"><div class="ic">🏷️</div><h3>Giá trị thật</h3><p>Giá cả hợp lý</p></div>
+    <div class="commit-card"><div class="ic">🎧</div><h3>Phục vụ tận tâm</h3><p>Hỗ trợ nhanh chóng</p></div>
+  </div>
+</section>
+
+<section id="bao-hanh">
+  <div class="warranty-box">
+    <div class="warranty-title">CHẾ ĐỘ BẢO HÀNH HỢP LÝ</div>
+    <div class="warranty-grid">
+      <div class="warranty-item"><div class="badge">7</div><h4>7 ngày</h4><p>Đổi trả miễn phí nếu có lỗi (còn bảo hành)</p></div>
+      <div class="warranty-item"><div class="badge">30</div><h4>30 ngày</h4><p>Hỗ trợ đổi mới sản phẩm</p></div>
+      <div class="warranty-item"><div class="badge">🔧</div><h4>Theo giờ</h4><p>Bảo hành tùy theo sản phẩm</p></div>
+      <div class="warranty-item"><div class="badge">✓</div><h4>Hỗ trợ trọn đời</h4><p>Tư vấn và hỗ trợ kỹ thuật trong suốt quá trình sử dụng</p></div>
+    </div>
+    <div class="warranty-note">* Điều kiện áp dụng: Sản phẩm không tự ý sửa chữa hay vi phạm pháp luật.</div>
+  </div>
+</section>
+
+<section id="san-pham">
+  <div class="section-head">
+    <div class="ribbon ribbon-alt">SẢN PHẨM</div>
+    <h2>Sản phẩm chất lượng cao</h2>
+    <p>Đa dạng ngành hàng, được chọn lọc kỹ càng về chất lượng và nguồn gốc.</p>
+  </div>
+  <button id="editModeBtn" style="display:none;margin-bottom:20px;background:var(--gold);color:var(--green-deep);border:none;padding:10px 20px;border-radius:999px;font-weight:800;cursor:pointer;">✏️ Bật chế độ chỉnh sửa</button>
+  <div class="prod-grid" id="prodGrid">
+    <div class="prod-card">
+      <div class="prod-thumb">🎧</div>
+      <div class="prod-info"><span class="prod-tag">Công nghệ</span><h4>Tai nghe không dây cao cấp</h4>
+        <div class="prod-price"><span class="price">459.000₫</span><button class="add-btn">+</button></div></div>
+    </div>
+    <div class="prod-card">
+      <div class="prod-thumb">👜</div>
+      <div class="prod-info"><span class="prod-tag">Thời trang</span><h4>Túi da thật thủ công</h4>
+        <div class="prod-price"><span class="price">890.000₫</span><button class="add-btn">+</button></div></div>
+    </div>
+    <div class="prod-card">
+      <div class="prod-thumb">💅</div>
+      <div class="prod-info"><span class="prod-tag">Làm đẹp</span><h4>Bộ dưỡng da chính hãng</h4>
+        <div class="prod-price"><span class="price">329.000₫</span><button class="add-btn">+</button></div></div>
+    </div>
+    <div class="prod-card">
+      <div class="prod-thumb">⌚</div>
+      <div class="prod-info"><span class="prod-tag">Phụ kiện</span><h4>Đồng hồ cơ nam</h4>
+        <div class="prod-price"><span class="price">1.250.000₫</span><button class="add-btn">+</button></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="footer-strip">
+  <div class="flogo">THẬTT CẨM-SHOP</div>
+  <p>Hàng thật – Giá trị thật · Uy tín tạo niềm tin · © 2026 Thậtt Cẩm-Shop. Mọi nội dung, hình ảnh, mã nguồn thuộc bản quyền Thậtt Cẩm-Shop, nghiêm cấm sao chép dưới mọi hình thức khi chưa được cho phép.</p>
+</div>
+
+<script>
+  (function(){
+    function getCookie(name){
+      var match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return match ? match.pop() : null;
+    }
+    function setCookie(name, value, days){
+      var expires = '';
+      if(days){
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = '; expires=' + date.toUTCString();
+      }
+      var secureFlag = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = name + '=' + value + expires + '; path=/; SameSite=Lax' + secureFlag;
+    }
+
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var knob = toggle.querySelector('.knob');
+    var saved = getCookie('theme');
+    if(saved === 'dark'){ root.classList.add('dark'); knob.textContent='☀️'; }
+    toggle.addEventListener('click', function(){
+      var isDark = root.classList.toggle('dark');
+      knob.textContent = isDark ? '☀️' : '🌙';
+      setCookie('theme', isDark ? 'dark' : 'light', 365);
+    });
+
+    // ---- Đăng nhập qua Supabase Auth (nhà cung cấp: Google) ----
+    // Thay 2 giá trị dưới đây bằng URL và Anon Key của project Supabase của bạn
+    var SUPABASE_URL = 'https://qszgzicilwreluzsnpqq.supabase.co';
+    var SUPABASE_ANON_KEY = 'sb_publishable_jKPaH0i_Z-cHXgYep2hHuA_buZAmh7t';
+    var ADMIN_EMAIL = 'voduynam11231@gmail.com';
+    var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function showUser(name, email, picture){
+      document.getElementById('googleSignInBtn').style.display = 'none';
+      var chip = document.getElementById('userChip');
+      chip.style.display = 'flex';
+      var isAdmin = email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      window.__isAdmin = isAdmin;
+      document.getElementById('userName').textContent = (name || email) + (isAdmin ? ' · Admin' : '');
+      chip.classList.toggle('admin-chip', !!isAdmin);
+      document.getElementById('editModeBtn').style.display = isAdmin ? 'inline-block' : 'none';
+      var avatar = document.getElementById('userAvatar');
+      if(picture){ avatar.src = picture; avatar.style.display = 'inline-block'; }
+    }
+
+    function hideUser(){
+      document.getElementById('userChip').style.display = 'none';
+      document.getElementById('googleSignInBtn').style.display = 'flex';
+      window.__isAdmin = false;
+      document.getElementById('editModeBtn').style.display = 'none';
+      document.getElementById('editModeBtn').textContent = '✏️ Bật chế độ chỉnh sửa';
+      if(editMode){ editMode = false; loadProducts(); }
+    }
+
+    async function applySessionUser(session){
+      if(!session || !session.user){ hideUser(); return; }
+      var meta = session.user.user_metadata || {};
+      // Chỉ lấy đúng 2 trường cần dùng: tên và email
+      var name = meta.full_name || meta.name || session.user.email;
+      var email = session.user.email;
+      showUser(name, email, meta.avatar_url);
+    }
+
+    document.getElementById('googleSignInBtn').addEventListener('click', async function(){
+      var res = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: 'https://duynam11231.github.io/web/index.html', scopes: 'email profile' }
+      });
+      if(res.error){ console.error('Lỗi đăng nhập Google:', res.error); alert('Lỗi đăng nhập: ' + res.error.message); }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async function(){
+      await supabaseClient.auth.signOut();
+      hideUser();
+    });
+
+    supabaseClient.auth.onAuthStateChange(function(_event, session){
+      applySessionUser(session);
+    });
+
+    supabaseClient.auth.getSession().then(function(res){
+      applySessionUser(res.data.session);
+    });
+
+    // ---- Sản phẩm: tải từ Supabase (nếu có bảng 'products'), chỉnh sửa chỉ dành cho Admin ----
+    var FALLBACK_PRODUCTS = [
+      {id:1, emoji:'🎧', tag:'Công nghệ', name:'Tai nghe không dây cao cấp', price:'459.000₫'},
+      {id:2, emoji:'👜', tag:'Thời trang', name:'Túi da thật thủ công', price:'890.000₫'},
+      {id:3, emoji:'💅', tag:'Làm đẹp', name:'Bộ dưỡng da chính hãng', price:'329.000₫'},
+      {id:4, emoji:'⌚', tag:'Phụ kiện', name:'Đồng hồ cơ nam', price:'1.250.000₫'}
+    ];
+    var editMode = false;
+
+    function escapeHtml(str){
+      var d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function renderProducts(list){
+      var grid = document.getElementById('prodGrid');
+      grid.innerHTML = list.map(function(p){
+        return '<div class="prod-card" data-id="'+p.id+'">' +
+          '<div class="prod-thumb">'+p.emoji+'</div>' +
+          '<div class="prod-info"><span class="prod-tag">'+escapeHtml(p.tag)+'</span>' +
+          '<h4 class="editable-name" '+(editMode?'contenteditable="true"':'')+'>'+escapeHtml(p.name)+'</h4>' +
+          '<div class="prod-price"><span class="price editable-price" '+(editMode?'contenteditable="true"':'')+'>'+escapeHtml(p.price)+'</span>' +
+          (editMode ? '<button class="add-btn save-btn" title="Lưu">💾</button>' : '<button class="add-btn">+</button>') +
+          '</div></div></div>';
+      }).join('');
+      if(editMode){
+        grid.querySelectorAll('.save-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var card = btn.closest('.prod-card');
+            var id = card.getAttribute('data-id');
+            var newName = card.querySelector('.editable-name').textContent.trim();
+            var newPrice = card.querySelector('.editable-price').textContent.trim();
+            saveProduct(id, newName, newPrice);
+          });
+        });
+      }
+    }
+
+    async function loadProducts(){
+      try{
+        var res = await supabaseClient.from('products').select('*').order('id');
+        if(res.error || !res.data || res.data.length === 0){
+          renderProducts(FALLBACK_PRODUCTS);
+        } else {
+          renderProducts(res.data);
+        }
+      }catch(e){
+        renderProducts(FALLBACK_PRODUCTS);
+      }
+    }
+
+    async function saveProduct(id, name, price){
+      var res = await supabaseClient.from('products').update({ name: name, price: price }).eq('id', id);
+      if(res.error){
+        alert('Không lưu được (kiểm tra bạn đã đăng nhập đúng email Admin và đã tạo bảng products + RLS chưa). Chi tiết: ' + res.error.message);
+      } else {
+        alert('Đã lưu thay đổi!');
+      }
+    }
+
+    document.getElementById('editModeBtn').addEventListener('click', function(){
+      if(!window.__isAdmin) return;
+      editMode = !editMode;
+      this.textContent = editMode ? '✅ Đang chỉnh sửa (bấm để thoát)' : '✏️ Bật chế độ chỉnh sửa';
+      loadProducts();
+    });
+
+    loadProducts();
+  })();
+</script>
+
+</body>
+</html>
